@@ -13,6 +13,7 @@ import EditProfilePopup from "./EditProfilePopup";
 import EditAvatarPopup from "./EditAvatarPopup";
 import AddPlacePopup from "./AddPlacePopup";
 import ImagePopup from "./ImagePopup";
+import InfoToolTip from "./InfoTooltip";
 
 function App() {
     const [isEditProfilePopupOpen, setEditProfilePopupOpen] = useState(false);
@@ -31,6 +32,8 @@ function App() {
     const [loggedIn, setLoggedIn] = useState(false);
     const [email, setEmail] = useState('');
     const history = useNavigate();
+    const [isInfoTooltipOpen, setInfoTooltipOpen] = useState(false);
+    const [status, setStatus] = useState();
 
     function closeAllPopups() {
         setEditProfilePopupOpen(false);
@@ -95,7 +98,7 @@ function App() {
 
     function getContent() {
         const token = localStorage.getItem('token');
-        if (token !== "undefined") {
+        if (token) {
             auth.getMain(token).then((res) => {
                 setLoggedIn(true);
                 history('/users/me');
@@ -104,22 +107,53 @@ function App() {
         }
     }
 
+    function handleRegister(email,password) {
+        return auth.register(email, password).then((res) => {
+            if (res.data) {
+                setStatus(true);
+                setInfoTooltipOpen(true);
+                return res;
+            }
+            else{
+                setStatus(false);
+                setInfoTooltipOpen(true);
+            }
+        }).catch((err) => {
+            console.log(err);
+        })
+    }
+
+    function handleLogin(email, password) {
+        return auth.authorize(email, password).then((res)=>{
+            if (res.token){
+                handleLoggedIn();
+            }
+            else{
+                setStatus(false);
+                setInfoTooltipOpen(true);
+            }
+        }).catch((err)=>{
+            console.log(err);
+        })
+    }
+
+    function handleClose(){
+        setInfoTooltipOpen(false);
+        if (status){
+            history('/signin');
+        }
+    }
+
     useEffect(() => {
-        console.log("loggedIn", loggedIn);
-        getContent();
         if (loggedIn) {
             Promise.all([api.getUserInfo(), api.getInitialCards()]).then(([user, c]) => {
-                console.log(user)
-                console.log(c);
                 setCurrentUser(user);
                 setCards(c);
-                console.log(currentUser);
-                console.log(cards);
             }).catch(err => {
                 console.log(err);
             });
         }
-    }, []);
+    }, [loggedIn]);
 
 
     useEffect(() => {
@@ -150,8 +184,8 @@ function App() {
                         handleEditProfileClick={handleEditProfileClick}
                         mainCards={cards}
                     /></ProtectedRoute>}/>
-                    <Route path="/signup" element={<Register/>}/>
-                    <Route path="/signin" element={<Login handleLogin={handleLoggedIn}/>}/>
+                    <Route path="/signup" element={<Register onRegister={handleRegister}/>}/>
+                    <Route path="/signin" element={<Login onLogin={handleLogin}/>}/>
                     <Route exact path="/" element=
                         {loggedIn ? <Navigate to="/signup"/> : <Navigate to="/signin"/>}
                     />
@@ -174,6 +208,7 @@ function App() {
                         <button type="button" className="popup__button popup__button-confirm">Да</button>
                     </div>
                 </div>
+                <InfoToolTip status={status} isOpen={isInfoTooltipOpen} closePopup={handleClose}/>
             </div>
         </div>
 

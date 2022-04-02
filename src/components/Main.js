@@ -4,7 +4,6 @@ import {CurrentUserContext} from '../contexts/CurrentUserContext.js';
 
 function Main({onEditProfile, onAddPlace, onEditAvatar, onCardClick, onCardLike,onCardDelete, cards}) {
     const user = useContext(CurrentUserContext);
-    console.log(cards);
     return (
         <main>
             <section className="profile">

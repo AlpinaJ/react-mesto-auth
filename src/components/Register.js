@@ -3,28 +3,15 @@ import {Link, useHistory, useNavigate} from 'react-router-dom';
 import auth from "../utils/Auth.js";
 import InfoToolTip from "./InfoTooltip.js";
 
-function Register() {
+function Register({onRegister}) {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const history = useNavigate();
-    const [isPopupOpen, setPopupOpen] = useState(false);
-    const [status, setStatus] = useState();
 
-    function handleRegister(e) {
+
+    function handleSubmit(e) {
         e.preventDefault();
-        auth.register(email, password).then((res) => {
-            if (res.data) {
-                setStatus(true);
-                setPopupOpen(true);
-                return res;
-            }
-            else{
-                setStatus(false);
-                setPopupOpen(true);
-            }
-        }).catch((err) => {
-            console.log(err);
-        })
+        onRegister(email,password);
     }
 
     function handleSetEmail(e) {
@@ -35,17 +22,12 @@ function Register() {
         setPassword(e.target.value);
     }
 
-    function handleClose(){
-        setPopupOpen(false);
-        if (status){
-            history('/signin');
-        }
-    }
+
 
     return (
         <div className="form__container">
             <h1 className="form__title">Регистрация</h1>
-            <form className="form" onSubmit={handleRegister}>
+            <form className="form" onSubmit={handleSubmit}>
                 <input onChange={handleSetEmail} type="email" className="form__input" placeholder="Email">
                 </input>
                 <input onChange={handleSetPassword} type="password" className="form__input" placeholder="Пароль">
@@ -53,7 +35,6 @@ function Register() {
                 <button type="submit" className="form__button">Зарегистрироваться</button>
             </form>
             <Link to="/signin" className="form__link">Уже зарегистрированы? Войти</Link>
-            <InfoToolTip status={status} isOpen={isPopupOpen} closePopup={handleClose}/>
         </div>
     )
 }

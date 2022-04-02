@@ -58,7 +58,7 @@
 @import url('blocks/popup/__status-text/popup__status-text.css');
 @import url('blocks/header/__navigation-link/header__navigation-link.css');
 @import url('blocks/header/__text/header__text.css');
-
+@import url('blocks/popup/__wrapper/popup__wrapper.css');
 
 #root{
     background-color: black;
